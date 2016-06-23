@@ -1,0 +1,59 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#3F51B5"
+    tools:context="com.example.ezee.myapplication.MenuInferior"
+    android:baselineAligned="true"
+    android:gravity="bottom"
+    android:foregroundGravity="center|right">
+
+
+    <Button
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/Inicio"
+        android:background="@drawable/home"
+        android:onClick="Inicio"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:clickable="true" />
+
+    <Button
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/Recitales"
+        android:background="@drawable/guitar"
+        android:layout_marginStart="61dp"
+        android:onClick="Recitales"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/Inicio"
+        android:clickable="true" />
+
+
+    <Button
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/AgregarRecital"
+        android:background="@drawable/guitarmas"
+        android:onClick="AgregarRecital"
+        android:layout_marginStart="57dp"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/Recitales"
+        android:clickable="true" />
+
+    <Button
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/Perfil"
+        android:background="@drawable/man"
+        android:clickable="true"
+        android:saveEnabled="false"
+        android:layout_marginRight="10dp"
+        android:onClick="Perfil"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/AgregarRecital"
+        android:layout_marginStart="46dp" />
+
+
+</RelativeLayout>
