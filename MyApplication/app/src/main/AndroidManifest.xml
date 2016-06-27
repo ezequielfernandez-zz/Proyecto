@@ -18,6 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:windowSoftInputMode="adjustResize"
             android:name=".MainActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar">
@@ -27,19 +28,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Segunda"
-            android:label=""
-            android:parentActivityName=".MainActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.ezee.myapplication.MainActivity" />
-        </activity>
-        <activity
-            android:name=".actividad_3"
-            android:label=""
-            android:theme="@style/AppTheme.NoActionBar" />
+
+
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -50,18 +40,13 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label=""
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
         <activity
-            android:name=".Principal"
-            android:label="@string/title_activity_principal"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
+            android:windowSoftInputMode="adjustResize"
             android:name=".TabHostNew"
             android:label="@string/title_activity_tab_host_new"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".Inicio"
-            android:label="@string/title_activity_inicio"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+
     </application>
 
 </manifest>

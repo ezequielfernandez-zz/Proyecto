@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.ezee.myapplication.Fragmento_Perfil">
+    tools:context=".FragmentoPerfil">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -25,7 +25,7 @@
             android:inputType="textPersonName"
             android:text="Nombre"
             android:ems="10"
-            android:id="@+id/editText"
+            android:id="@+id/LabelNombre"
             android:layout_alignParentTop="true"
             android:textSize="50dp"
             android:layout_alignParentEnd="true"
@@ -33,7 +33,7 @@
             android:layout_above="@+id/button" />
 
         <com.facebook.login.widget.LoginButton
-            android:id="@+id/login_button"
+            android:id="@+id/salir"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="clic"
@@ -49,8 +49,8 @@
             android:id="@+id/button"
             android:onClick="editar"
             android:textSize="10dp"
-            android:layout_above="@+id/login_button"
-            android:layout_alignEnd="@+id/login_button"
+            android:layout_above="@+id/salir"
+            android:layout_alignEnd="@+id/salir"
             android:layout_toEndOf="@+id/imageView" />
 
     </RelativeLayout>

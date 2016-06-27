@@ -15,7 +15,7 @@
 
 
     <fragment
-        android:name="com.example.ezee.myapplication.Fragmento_Log"
+        android:name="com.example.ezee.myapplication.FragmentoLog"
         android:id="@+id/fragment_log"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

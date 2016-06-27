@@ -38,7 +38,7 @@
                     android:orientation="vertical"
                     >
                     <fragment
-                        android:name="com.example.ezee.myapplication.Fragmento_Inicio"
+                        android:name="com.example.ezee.myapplication.FragmentoInicio"
                         android:id="@+id/fragment_inicio"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"/>
@@ -51,7 +51,7 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
                     <fragment
-                        android:name="com.example.ezee.myapplication.Fragmento_AgregarRecital"
+                        android:name="com.example.ezee.myapplication.FragmentoAgregarRecital"
                         android:id="@+id/fragment_agregar_recital"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"/>
@@ -64,7 +64,7 @@
                     android:orientation="vertical">
 
                     <fragment
-                        android:name="com.example.ezee.myapplication.Fragmento_Perfil"
+                        android:name="com.example.ezee.myapplication.FragmentoPerfil"
                         android:id="@+id/fragment_perfil"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"/>

@@ -2,6 +2,7 @@ package com.example.ezee.myapplication;
 
 import android.app.TabActivity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,17 +15,36 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TabHost;
+import android.widget.TextView;
 
 
 public class TabHostNew extends ActionBarActivity {
 
+    protected Bitmap foto;
+    protected String nombre;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_tab_host_new);
+
+
+        Intent intent=getIntent();
+        Bundle extras =intent.getExtras();
+        if (extras != null) {//ver si contiene datos
+            foto=(Bitmap)extras.get("Foto");//Obtengo el nombre
+            nombre=(String)extras.get("Nombre");
+        }
+
+        TextView e = (TextView)findViewById(R.id.LabelNombre);
+        e.setText(nombre);
+
+        ImageView i = (ImageView )findViewById(R.id.imageView);
+        i.setImageBitmap(foto);
+
 
         TabHost tabHost= (TabHost) findViewById(android.R.id.tabhost);
         tabHost.setup();
@@ -72,6 +92,19 @@ public class TabHostNew extends ActionBarActivity {
         CheckBox asis = (CheckBox) findViewById(R.id.asiste);
         boolean asiste = asis.isChecked();
 
+    }
+
+    public void clic (View v) {
+        finish();//Muere la actividad
+    }
+
+    public Bitmap enviarFoto(){
+
+        return foto;
+    }
+
+    public String getNombre(){
+        return nombre;
     }
 
 }

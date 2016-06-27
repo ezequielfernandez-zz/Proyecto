@@ -1,42 +1,37 @@
 package com.example.ezee.myapplication;
 
-/**
- * Created by ezee on 10/6/2016.
- */
-
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.util.Log;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
+/**
+ * Created by ezee on 26/6/2016.
+ */
 public class MyLocationListener implements LocationListener {
-    Segunda segunda;
 
 
-
-    public void setActividad(Segunda s) {
-        this.segunda = s;
-    }
+    Subscriptor subscripto=null;
 
     @Override
     public void onLocationChanged(Location loc) {
-        // Este metodo se ejecuta cada vez que el GPS recibe nuevas coordenadas
-        // debido a la deteccion de un cambio de ubicacion
-
-
-        this.segunda.setLocation(loc);
+        if(subscripto!=null) subscripto.Actualizar(loc);
     }
 
     @Override
     public void onProviderDisabled(String provider) {
         // Este metodo se ejecuta cuando el GPS es desactivado
-        segunda.Activado(false);
     }
 
     @Override
     public void onProviderEnabled(String provider) {
         // Este metodo se ejecuta cuando el GPS es activado
-        segunda.Activado(true);
     }
 
     @Override
@@ -50,5 +45,13 @@ public class MyLocationListener implements LocationListener {
         // AVAILABLE -> Disponible
     }
 
-}/* Fin de la clase localizacion */
 
+    public void Subscribirse(Subscriptor s){
+        subscripto=s;
+    }
+
+
+
+
+
+}/* Fin de la clase localizacion */

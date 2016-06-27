@@ -1,6 +1,10 @@
 package com.example.ezee.myapplication;
 
 
+        import android.app.Notification;
+        import android.graphics.Bitmap;
+        import android.util.Log;
+
         import org.json.JSONException;
         import org.json.JSONObject;
 
@@ -10,12 +14,31 @@ public class Usuario {
     private String edad;
     private String telefono;
     private String url;
+    private Bitmap foto;
+    private String id;
 
     public Usuario (String pNombre, String pApellido, String pEdad, String pTelefono) {
         this.nombre = pNombre;
         this.apellido = pApellido;
         this.edad = pEdad;
         this.telefono = pTelefono;
+    }
+
+    public Usuario(){}
+
+    public void setId(String ID){
+        id=ID;
+    }
+
+    public String getId(){
+        return id;
+    }
+
+    public void setFoto(Bitmap b){
+        foto=b;
+    }
+    public Bitmap getFoto(){
+        return foto;
     }
 
     public String getNombre() {
