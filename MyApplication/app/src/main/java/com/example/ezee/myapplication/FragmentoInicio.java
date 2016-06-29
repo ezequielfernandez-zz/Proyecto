@@ -28,8 +28,6 @@ public class FragmentoInicio extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private String[]  sistemas = {"Divididos", "Ciro", "Toco para vos", "Las pelotas", "La champions liga",
-            "Coldplay", "Charly Garcia"};
 
     private OnFragmentInteractionListener mListener;
 

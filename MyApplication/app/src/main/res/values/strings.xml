@@ -21,4 +21,24 @@
     <string name="feedbacktype4">Opera</string>
     <string name="excep">Ingrese los datos del auto</string>
 
+    <string name="URLbase">http://192.168.0.102/aplicacion/</string>
+    <string name="urlFotoPrimera">https://graph.facebook.com/</string>
+    <string name="urlFotoSegunda">/picture?type=large</string>
+
+    <string name="nombre">nombre</string>
+    <string name="apellido">apellido</string>
+    <string name="edad">edad</string>
+    <string name="telefono">telefono</string>
+    <string name="id">id</string>
+    <string name="nulo">0</string>
+    <string name="StringNulo"> </string>
+
+    <string name="SinConexion">No hay conexion </string>
+
+
+
+    <string name="Usuario">Usuario</string>
+
+
+
 </resources>

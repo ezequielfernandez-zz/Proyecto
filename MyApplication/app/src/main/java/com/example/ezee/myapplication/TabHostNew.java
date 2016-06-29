@@ -45,7 +45,7 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
     protected String[] tercerosRecitales;
     protected String[] cuartosRecitales;
     protected String[] autosUsuario;
-    String[] definitivo;
+    String[] definitivo={""};
 
 
     protected Bitmap foto;
@@ -53,6 +53,7 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
     protected String intereses;
     protected String idU;
     protected String gustos;
+    protected String ciudad;
     protected String ListaAutosRecital;
     protected  String autoQueEligio;
     EditText Modelo;
@@ -64,6 +65,9 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
 
     TextView Descripcion;
     TextView telefono;
+
+    private ListView lv;
+    private ListView lvMisReci;
 
     String recital;
     View vista;
@@ -89,24 +93,37 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
             intereses = (String) extras.get("Intereses");
             idU = (String) extras.get("id");
             gustos = (String) extras.get("Gustos");
+            ciudad= (String) extras.get("Ciudad");
 
         }
-        ArmarLista();
-
-        ListView lv = (ListView) findViewById(R.id.intereses);
-        lv.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, definitivo));
-
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
-                String eligio = list.getItemAtPosition(pos).toString();
-                EnviarRecital(eligio);
-                vista = v;
-            }
-        });
-
+        PedirRecitales();
         Descripcion = (TextView) findViewById(R.id.descipcion);
         telefono = (TextView) findViewById(R.id.telefono);
+        PedirTelefono();
+
+        ArmarLista();
+
+            lvMisReci = (ListView) findViewById(R.id.misreci);
+
+
+            lv = (ListView) findViewById(R.id.intereses);
+
+            lv.setAdapter(new ArrayAdapter<String>(this,
+                    android.R.layout.simple_list_item_1, definitivo));
+
+            if(!(definitivo.length==1)&&!definitivo[0].equals("")) {
+                lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
+                        String eligio = list.getItemAtPosition(pos).toString();
+                        EnviarRecital(eligio);
+                        vista = v;
+                    }
+                });
+            }
+
+
+
+
 
 
         TextView e = (TextView) findViewById(R.id.LabelNombre);
@@ -126,7 +143,6 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
 
                 int i = tabHost.getCurrentTab();
                 if (i == 0) {
-                    Log.i("viendo", "tab inicio");
                     Actualizar();
                 }
             }
@@ -166,7 +182,6 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
             jsonObject.put("ciudad", arreglo[3]);
             jsonObject.put("fecha", arreglo[2]);
             jsonObject.put("genero", arreglo[1]);
-            Log.d("viendo", jsonObject.toString());
 
         } catch (JSONException ex) {
             // TODO Auto-generated catch block
@@ -205,6 +220,7 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
                     Toast.makeText(getApplicationContext(), "Descripcion actualizada ", Toast.LENGTH_SHORT).show();
                     Descripcion.setText(NuevaDescripcion.getText().toString());
                     telefono.setText(Telefono.getText().toString());
+                    EnviarTelefono();
                     Dialog.dismiss();
                 } catch (NullPointerException e) {
                     Toast.makeText(getApplicationContext(), "Ingrese los datos ", Toast.LENGTH_SHORT).show();
@@ -280,23 +296,37 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
 
     public void Notificar(String s) {
 
-        if (s.contains("Recitales")) {
-            intereses = s;
-            ArmarLista();
-            ListView lv = (ListView) findViewById(R.id.intereses);
-            lv.setAdapter(new ArrayAdapter<String>(this,
-                    android.R.layout.simple_list_item_1, definitivo));
-        }
-            else {
-                //Recibo la lista de autos para el recital elegido
-                ListaAutosRecital = s;
-                open(vista);
+        if(!s.contains("refused")) {
+            if (s.contains("losRecitales")) {
+                intereses = s;
+                ArmarLista();
+                ListView lv = (ListView) findViewById(R.id.intereses);
+                lv.setAdapter(new ArrayAdapter<String>(this,
+                        android.R.layout.simple_list_item_1, definitivo));
+            } else {
+                if(s.contains("Telefono")){
+                    if(s.contains("NULL")) Telefono.setText("No ha agregado su telefono");
+                    else telefono.setText(s.replace("Telefono",""));
+                }
+                else {
+                    if(s.contains("misRecitales")){
+                        s=s.replace("misRecitales","");
+                        ArmarMisRecitales(s);
+                    }
+                    else {
+                        //Recibo la lista de autos para el recital elegido
+                        ListaAutosRecital = s;
+                        //Abro el dialogo mostrando la informacion para el recital elegido
+                        open(vista);
+                    }
+                }
             }
+        }
+
 
     }
 
     public void open(View view) {
-        Log.d("viendo","lista autos0: "+ListaAutosRecital);
 
         LayoutInflater inflater = getLayoutInflater();
         ListaAutosRecital=ListaAutosRecital.replace('[', ' ');
@@ -304,7 +334,6 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
         ListaAutosRecital=ListaAutosRecital.replace("OK","");
         if(ListaAutosRecital.length()<7) ListaAutosRecital="No hay autos disponibles";
         View dialoglayout = inflater.inflate(R.layout.dialogo, null);
-        Log.d("viendo","lista autos: "+ListaAutosRecital);
         ListView lista = (ListView) dialoglayout.findViewById(R.id.disponibles);
         lista.setAdapter(new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, ListaAutosRecital.split(",")));
@@ -338,16 +367,9 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
             public void onClick(View view) {
                 //Toast.makeText(getApplicationContext(), "Ofrecer ", Toast.LENGTH_SHORT).show();
                 try {
-                    Log.d("Viendo","1");
                     String modelo = Modelo.getText().toString();
-                    Log.d("Viendo","2"+modelo);
-
                     String capacidad = Capacidad.getText().toString();
-                    Log.d("Viendo","3"+capacidad);
-
                     String patente = Patente.getText().toString();
-                    Log.d("Viendo","4"+patente);
-
                     EnviarAuto(capacidad, modelo, patente);
                     Dialog.dismiss();
                 } catch (NullPointerException e) {
@@ -358,36 +380,16 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
             }
         });
 
-        Button Cargado = (Button) dialoglayout.findViewById(R.id.cargado);
-        Asistir.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LayoutInflater inflater = getLayoutInflater();
 
-                View dialoglayout = inflater.inflate(R.layout.dialogo_patentes, null);
-                ListView lista = (ListView) dialoglayout.findViewById(R.id.disponibles);
-                lista.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
-                        android.R.layout.simple_list_item_1, recital.split(",")));
-
-                lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    public void onItemClick(AdapterView<?> list, View v, int pos, long id) {
-                        autoQueEligio = list.getItemAtPosition(pos).toString();
-                        Dialog1.dismiss();
-                        Dialog.dismiss();
-
-                    }
-                });
-                AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-                builder.setView(dialoglayout);
-                Dialog1 = builder.show();
-
-            }
-        });
 
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialoglayout);
         Dialog = builder.show();
+    }
+
+    public String getId(){
+        return idU;
     }
 
     public void EnviarAuto(String capacity, String model, String pat) {
@@ -397,10 +399,6 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
         //String [] reci={"Bandana","Bahia Blanca","22/1/17","pop"};
 
         try {
-            jsonObject.put("artista", reci[0].replace(" ",""));
-            jsonObject.put("ciudad", reci[3].replace(" ",""));
-            jsonObject.put("fecha", reci[2].replace(" ",""));
-            jsonObject.put("genero", reci[1].replace(" ",""));
             jsonObject.put("idU", idU);
             jsonObject.put("modelo", model);
             jsonObject.put("capacidad", capacity);
@@ -463,9 +461,9 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
 
         try {
             jsonObject.put("artista", reci[0]);
-            jsonObject.put("ciudad", reci[1]);
+            jsonObject.put("ciudad", reci[3]);
             jsonObject.put("fecha", reci[2]);
-            jsonObject.put("genero", reci[3]);
+            jsonObject.put("genero", reci[1]);
             jsonObject.put("idU", idU);
             jsonObject.toString();
 
@@ -543,11 +541,10 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
 
     public void Actualizar() {
 
-        //Obtenemos los datos del Articles en foramto JSON
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("ciudad", "la plata");
-            //jsonObject.put("gustos", gustos);
+            jsonObject.put("ciudad", "bahia");//ciudad);
+            jsonObject.put("gustos", gustos);
             jsonObject.put("gustos", "asd");
             jsonObject.put("idU", idU);
         } catch (JSONException e) {
@@ -559,29 +556,121 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
 
         String baseUrl = "inicio.php";
 
-        //Se ejecuta la peticion Http POST empleando AsyncTAsk
         MyHttpPostRequest request = new MyHttpPostRequest();
         request.Subscribirse(this);
         request.execute(baseUrl, strJson, "Recital");
 
     }
 
-    public void ArmarLista() {
-        intereses=intereses.replace("Recitales","");
-        String[] aux = intereses.split("]");
-        boolean coneccion=true;
-        //aux[0]=artista&ciudad , aux[1]=artista, aux[2]=ciudad, aux[3]=otros, aux[4]=vacio, aux[5]=autos
+    public void EnviarTelefono(){
+
+        JSONObject jsonObject = new JSONObject();
         try {
+            jsonObject.put("idU", idU);
+            jsonObject.put("telefono", Telefono.getText().toString());
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        String strJson = jsonObject.toString();
+
+        String baseUrl = "postTelefono.php";
+
+
+        MyHttpPostRequest request = new MyHttpPostRequest();
+        request.execute(baseUrl, strJson, "Telefono");
+    }
+
+    public void PedirTelefono(){
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("idU", idU);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        String strJson = jsonObject.toString();
+
+        String baseUrl = "getTelefono.php";
+
+        MyHttpPostRequest request = new MyHttpPostRequest();
+        request.Subscribirse(this);
+        request.execute(baseUrl, strJson, "Telefono");
+    }
+
+    public void PedirRecitales(){
+        JSONObject jsonObject = new JSONObject();
+        try {
+
+            jsonObject.put("idU", idU);
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        String strJson = jsonObject.toString();
+        String baseUrl = "misRecitales.php";
+
+        MyHttpPostRequest request = new MyHttpPostRequest();
+        request.Subscribirse(this);
+
+        request.execute(baseUrl, strJson, "mRecital");
+    }
+
+    public void ArmarMisRecitales(String s){
+        s = s.replace(']',' ');
+        s = s.replace('}',' ');
+        s = s.replace('"',' ');
+        s = s.replace('[',' ');
+        s = s.replace('{',' ');
+        s = s.replace('"',' ');
+
+
+        String [] recis = s.split("artista");
+
+        for (int i = 1; i < recis.length; i++) {
+            recis[i] = recis[i].replace(":", "");
+            recis[i] = recis[i].replace("ciudad", "");
+            recis[i] = recis[i].replace("genero", "");
+            recis[i] = recis[i].replace("fecha", "");
+            recis[i] = recis[i].replace('"', ' ');
+            recis[i] = recis[i].replace('[', ' ');
+            recis[i] = recis[i].replace(']', ' ');
+            recis[i] = recis[i].replace('{', ' ');
+            recis[i] = recis[i].replace('}', ' ');
+
+        }
+
+        lvMisReci.setAdapter(new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, recis));
+
+    }
+
+    public void ArmarLista() {
+
+        intereses=intereses.replace("losRecitales","");
+        Log.d("viendo","intereses: "+intereses);
+        String[] aux = intereses.split("]");
+        boolean conexion=true;
+        boolean listaVacia=false;
+        if(intereses.contains("refused")) conexion=false;
+        if(!intereses.contains(("artista"))) listaVacia=true;
+
+
+
+        if(!listaVacia && conexion){
+            //aux[0]=artista&ciudad , aux[1]=artista, aux[2]=ciudad, aux[3]=otros, aux[4]=vacio, aux[5]=autos
+
             primerosRecitales = aux[0].split("artista");
             segundosRecitales = aux[1].split("artista");
             tercerosRecitales = aux[2].split("artista");
             cuartosRecitales = aux[3].split("artista");
             autosUsuario = aux[5].split(",");
-        }
-        catch(Exception e){
-            coneccion=false;
-        }
-        if(coneccion) {
+
+
             for (int i = 0; i < primerosRecitales.length; i++) {
                 primerosRecitales[i] = primerosRecitales[i].replace(":", "");
                 primerosRecitales[i] = primerosRecitales[i].replace("ciudad", "");
@@ -704,14 +793,6 @@ public class TabHostNew extends ActionBarActivity implements Notificador {
             for (int i = 0; i < cantidad; i++) {
                 definitivo[i] = arreglo[i];
             }
-        }
-        else{
-            Toast.makeText(this, "No hay coneccion con el servidor", Toast.LENGTH_SHORT).show();
-            try{
-                Thread.sleep(2000);
-            }
-            catch(Exception e){}
-            this.finish();
         }
     }
 

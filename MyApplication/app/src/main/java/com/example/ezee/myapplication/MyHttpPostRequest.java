@@ -31,7 +31,7 @@ public class MyHttpPostRequest extends AsyncTask<String, Integer, String> {
     Notificador subscripto=null;
     boolean mostrar=false;
     Context context;
-    String ip="http://192.168.0.102/aplicacion/";
+    String ip="http://192.168.9.93/aplicacion/";
 
     public void Subscribirse(Notificador s){
         subscripto=s;

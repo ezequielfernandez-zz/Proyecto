@@ -12,6 +12,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,7 +24,7 @@ import android.widget.ListView;
  * Use the {@link FragmentoPerfil#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FragmentoPerfil extends Fragment {
+public class FragmentoPerfil extends Fragment{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -35,11 +38,10 @@ public class FragmentoPerfil extends Fragment {
     String nombre;
     private OnFragmentInteractionListener mListener;
     private ListView list;
-    private String[]  sistemas = {"Divididos", "Ciro", "Toco para vos", "Las pelotas", "La champions liga",
-            "Coldplay", "Charly Garcia"};
+    private String[]  recitales={""};
     private View rootView;
-
-    public FragmentoPerfil() {
+    String idU;
+    public FragmentoPerfil(){
         // Required empty public constructor
     }
 
@@ -66,12 +68,8 @@ public class FragmentoPerfil extends Fragment {
         super.onCreate(savedInstanceState);
         // Establecemos el Adapter a la Lista del Fragment
 
-
-         foto=((TabHostNew)getActivity()).enviarFoto();
+        foto=((TabHostNew)getActivity()).enviarFoto();
         nombre=((TabHostNew)getActivity()).getNombre();
-
-        if(foto!=null) Log.d("foto", "encontro");
-        else Log.d("foto","parece que no");
 
     }
 
@@ -85,9 +83,7 @@ public class FragmentoPerfil extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        ListView lv = (ListView) view.findViewById(R.id.listView);
-        lv.setAdapter(new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_1, sistemas));
+
     }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -122,11 +118,6 @@ public class FragmentoPerfil extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public void editar(View v){}
-
-    public void clic(View v){
-
-    }
 
 
 

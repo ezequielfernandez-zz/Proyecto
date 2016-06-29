@@ -1,37 +1,20 @@
 package com.example.ezee.myapplication;
 
-/**
- * Created by ezee on 11/6/2016.
- */
-import android.app.Activity;
+
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageInstaller;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.service.textservice.SpellCheckerService;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -45,31 +28,18 @@ import com.facebook.Profile;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
-import org.apache.http.impl.cookie.DateUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.sql.Date;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
 public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
 
@@ -80,11 +50,10 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
     String edad;
     protected Bitmap f;
     private CallbackManager callbackManager;
-    String Direccion, Ciudad, Pais;
+    String Ciudad;
     String Gustos="";
     boolean envioDatos=false;
     int i=0;
-    String [] a={"h"};
     boolean logueado=false;
     AlertDialog alertDialog;
     String intereses;
@@ -102,6 +71,8 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
             } catch (Exception e) {
             }
 
+
+            //Solicito los likes del usuario en facebook
             new GraphRequest(
                     AccessToken.getCurrentAccessToken(),
                     usuario.getId()+"/likes/",
@@ -124,6 +95,7 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
                         }
                     }).executeAsync();
 
+            //Solicito la musica que al usuario le gusta en facebook
             new GraphRequest(
                     AccessToken.getCurrentAccessToken(),
                     usuario.getId()+"/music/",
@@ -143,48 +115,24 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
                                 aux[i]=aux[i].replace(".","");
                                 Gustos=Gustos+","+aux[i];
                             }
-
-
-                                envioDatos=true;
+                                Gustos=Validar(Gustos);
                                 EnviarDatos();
 
                         }
                     }).executeAsync();
 
-
             Profile profile = Profile.getCurrentProfile();
-            GraphRequest request = GraphRequest.newMeRequest(
-                    loginResult.getAccessToken(),
-                    new GraphRequest.GraphJSONObjectCallback() {
-                        @Override
-                        public void onCompleted(JSONObject object, GraphResponse response) {
-                            String  birthday,likes;
-                            try {
-                                birthday = object.getString("birthday"); // 01/31/1980 format
-                                birthday.replace("\\ ", "");
-                                DateFormat format=new SimpleDateFormat("MM/dd/yyyy");
-                                java.util.Date nacimiento=format.parse(birthday);
-                                java.util.Date hoy=new java.util.Date();
-                                long diferenciaEn_ms = hoy.getTime() - nacimiento.getTime();
-                                long dias = diferenciaEn_ms / (1000 * 60 * 60 * 24);
-                                edad=String.valueOf(dias / 365);
-                                EnviarUsuario();
-                            } catch (Exception e) {
-                            }
-                        }
-                    });
-            Bundle parameters = new Bundle();
-            parameters.putString("fields", "birthday,friends,actions.music");
-            request.setParameters(parameters);
-            request.executeAsync();
 
 
 
-
-
+            //Obtengo nombre y apellido del facebook
             usuario.setApellido(profile.getLastName());
             usuario.setNombre(profile.getFirstName());
+
+            EnviarUsuario();
+
             if(envioDatos) Notificar(intereses);
+
 
             if (profile != null) {
                 logueado=true;
@@ -210,6 +158,7 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
         callbackManager = CallbackManager.Factory.create();
     }
 
+    //Recibe la ubicacion del usuario
     public void Actualizar (Location l) {
         ubicacion = l;
         try {
@@ -217,7 +166,8 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
             List<Address> list = geocoder.getFromLocation(ubicacion.getLatitude(), ubicacion.getLongitude(), 1);
             if (!list.isEmpty()) {
                 Address direccion = list.get(0);
-                Ciudad = direccion.getLocality();
+                Ciudad = Validar(direccion.getLocality());
+                if(!envioDatos) EnviarDatos();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -255,7 +205,7 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
         loginButton.registerCallback(callbackManager, callBack);
     }
 
-
+    //Obtengo la foto de perfil del facebook
     class ObtenerFoto extends AsyncTask<String, Void, Usuario> {
         private Exception exception;
         Bitmap bitmap = null;
@@ -286,58 +236,55 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-
+    //Envia el usuario al servidor para agregarlo a la base de datos si el mismo no esta
     public void EnviarUsuario() {
             JSONObject jsonObject= new JSONObject();
             try {
                 jsonObject.put("nombre", usuario.getNombre());
                 jsonObject.put("apellido", usuario.getApellido());
-                jsonObject.put("edad", edad);
-                jsonObject.put("telefono", "0");
                 jsonObject.put("id", usuario.getId());
 
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            //Obtenemos los datos del Articles en foramto JSON
+            //Obtenemos los datos del usuario en foramto JSON
             String strJson = jsonObject.toString();
             Log.d("viendo", strJson);
-            //Se define la URL del servidor a la cual se enviarán lso datos
-            //String baseUrl = "http://www.server.com/newarticle.php";
+            //Se define la ultima parte de la URL del servidor a la cual se enviarán los datos
             String baseUrl = "postUsuario.php";
 
-            //Se ejecuta la peticion Http POST empleando AsyncTAsk
-            new MyHttpPostRequest().execute(baseUrl, strJson,"Usuario");
-        EnviarDatos();
+            //Se ejecuta la peticion
+            new MyHttpPostRequest().execute(baseUrl, strJson, "Usuario");
+            //Se envian ademas los datos de ubicacion y gustos del usuario
 
     }
 
     public void EnviarDatos() {
+        if(Ciudad!=null) {
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("ciudad", "bahia");//Ciudad);
+                jsonObject.put("gustos", Gustos);
+                jsonObject.put("idU", usuario.getId());
+                Log.d("viendo", jsonObject.toString());
 
-        //Obtenemos los datos del Articles en foramto JSON
-        JSONObject jsonObject= new JSONObject();
-        try {
-            jsonObject.put("ciudad", Ciudad);
-            jsonObject.put("gustos", Gustos);
-            //jsonObject.put("gustos", "asd");
-            jsonObject.put("idU", usuario.getId());
-            Log.d("viendo",jsonObject.toString());
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            String strJson = jsonObject.toString();
+
+            String baseUrl = "inicio.php";
+
+            MyHttpPostRequest request = new MyHttpPostRequest();
+            //Se genera una subscripcion, para ser notificado de la respuesta en, ya que se usara la misma para armar
+            //La lista de recitales que se le mostrara al usuario en la siguiente pantalla
+            request.Subscribirse(this);
+            request.execute(baseUrl, strJson, "Recital");
+            envioDatos = true;
         }
-
-        String strJson = jsonObject.toString();
-        //Se define la URL del servidor a la cual se enviarán lso datos
-        //String baseUrl = "http://www.server.com/newarticle.php";
-        String baseUrl = "inicio.php";
-
-        //Se ejecuta la peticion Http POST empleando AsyncTAsk
-        MyHttpPostRequest request=new MyHttpPostRequest();
-        request.Subscribirse(this);
-        request.execute(baseUrl, strJson,"Recital");
-        envioDatos=true;
 
     }
 
@@ -348,16 +295,18 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
             intent.putExtra("Foto", usuario.getFoto());
             intent.putExtra("Nombre", usuario.getNombre());
             intent.putExtra("Intereses", s);
-            intent.putExtra("Gustos",Gustos);
+            intent.putExtra("Gustos", Gustos);
             intent.putExtra("id", usuario.getId());
+            intent.putExtra("Ciudad",Ciudad);
             //alertDialog.dismiss();
             startActivity(intent);
         }
+
     }
 
     public void open(View v) {
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         builder.setTitle("");
         builder.setIcon(R.drawable.guitar);
@@ -366,6 +315,26 @@ public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
 
 
     }
+
+    public String Validar(String s){
+
+        final String ORIGINAL = "ÁáÉéÍíÓóÚúÑñÜüABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        final String REPLACEMENT = "aaeeiioouunnuuabcdefghijklmnopqrstuvwxyz";
+
+            if (s == null) {
+                return null;
+            }
+            char[] array = s.toCharArray();
+            for (int index = 0; index < array.length; index++) {
+                int pos = ORIGINAL.indexOf(array[index]);
+                if (pos > -1) {
+                    array[index] = REPLACEMENT.charAt(pos);
+                }
+            }
+            return new String(array);
+        }
+
+
 
 }
 

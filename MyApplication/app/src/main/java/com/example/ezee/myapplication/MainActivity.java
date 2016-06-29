@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements Subscriptor{
 
     public void Actualizar (Location l){
         Subscriptor frag = (Subscriptor)getSupportFragmentManager().findFragmentById(R.id.fragment_log);
-        frag.Actualizar(l);
+        if(frag!=null) frag.Actualizar(l);
     }
 
 
