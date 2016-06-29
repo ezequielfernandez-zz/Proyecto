@@ -4,8 +4,11 @@ package com.example.ezee.myapplication;
  * Created by ezee on 11/6/2016.
  */
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInstaller;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
@@ -16,6 +19,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.service.textservice.SpellCheckerService;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,11 +40,13 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.Profile;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import org.apache.http.impl.cookie.DateUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
@@ -65,16 +71,23 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-public class FragmentoLog extends Fragment implements Subscriptor{
+public class FragmentoLog extends Fragment implements Subscriptor,Notificador{
 
 
     private Location ubicacion;
     protected Usuario usuario;
+    Intent intent;
+    String edad;
     protected Bitmap f;
     private CallbackManager callbackManager;
     String Direccion, Ciudad, Pais;
-    boolean envioUsuario=false;
+    String Gustos="";
+    boolean envioDatos=false;
     int i=0;
+    String [] a={"h"};
+    boolean logueado=false;
+    AlertDialog alertDialog;
+    String intereses;
 
     private FacebookCallback<LoginResult> callBack = new FacebookCallback<LoginResult>() {
         @Override
@@ -89,18 +102,64 @@ public class FragmentoLog extends Fragment implements Subscriptor{
             } catch (Exception e) {
             }
 
-            Profile profile = Profile.getCurrentProfile();
+            new GraphRequest(
+                    AccessToken.getCurrentAccessToken(),
+                    usuario.getId()+"/likes/",
+                    null,
+                    HttpMethod.GET,
+                    new GraphRequest.Callback() {
 
+                        @Override
+                        public void onCompleted(GraphResponse graphResponse) {
+                            String [] aux=graphResponse.toString().toString().split("name");
+                            for(int i=0;i<aux.length;i++){
+                                aux[i]=aux[i].replace('"',' ');
+                                aux[i]=aux[i].replace(":", "");
+                                aux[i]=aux[i].substring(0, aux[i].indexOf(','));
+                                aux[i]=aux[i].replace("}", "");
+                                aux[i]=aux[i].replace("]", "");
+                                aux[i]=aux[i].replace(".","");
+                                Gustos=Gustos+","+aux[i];
+                            }
+                        }
+                    }).executeAsync();
+
+            new GraphRequest(
+                    AccessToken.getCurrentAccessToken(),
+                    usuario.getId()+"/music/",
+                    null,
+                    HttpMethod.GET,
+                    new GraphRequest.Callback() {
+
+                        @Override
+                        public void onCompleted(GraphResponse graphResponse) {
+                            String [] aux=graphResponse.toString().toString().split("name");
+                            for(int i=0;i<aux.length;i++){
+                                aux[i]=aux[i].replace('"',' ');
+                                aux[i]=aux[i].replace(":", "");
+                                aux[i]=aux[i].substring(0, aux[i].indexOf(','));
+                                aux[i]=aux[i].replace("}", "");
+                                aux[i]=aux[i].replace("]", "");
+                                aux[i]=aux[i].replace(".","");
+                                Gustos=Gustos+","+aux[i];
+                            }
+
+
+                                envioDatos=true;
+                                EnviarDatos();
+
+                        }
+                    }).executeAsync();
+
+
+            Profile profile = Profile.getCurrentProfile();
             GraphRequest request = GraphRequest.newMeRequest(
                     loginResult.getAccessToken(),
                     new GraphRequest.GraphJSONObjectCallback() {
                         @Override
                         public void onCompleted(JSONObject object, GraphResponse response) {
-                            Log.d("LoginActivity", response.toString());
-                            String  email;
-                            String  birthday;
+                            String  birthday,likes;
                             try {
-                                email = object.getString("email");
                                 birthday = object.getString("birthday"); // 01/31/1980 format
                                 birthday.replace("\\ ", "");
                                 DateFormat format=new SimpleDateFormat("MM/dd/yyyy");
@@ -108,26 +167,27 @@ public class FragmentoLog extends Fragment implements Subscriptor{
                                 java.util.Date hoy=new java.util.Date();
                                 long diferenciaEn_ms = hoy.getTime() - nacimiento.getTime();
                                 long dias = diferenciaEn_ms / (1000 * 60 * 60 * 24);
-                                usuario.setEdad(String.valueOf(dias/365));
+                                edad=String.valueOf(dias / 365);
+                                EnviarUsuario();
                             } catch (Exception e) {
                             }
                         }
                     });
             Bundle parameters = new Bundle();
-            parameters.putString("fields", "id,name,email,gender,birthday");
+            parameters.putString("fields", "birthday,friends,actions.music");
             request.setParameters(parameters);
             request.executeAsync();
+
+
+
+
+
             usuario.setApellido(profile.getLastName());
             usuario.setNombre(profile.getFirstName());
-            EnviarUsuario();
+            if(envioDatos) Notificar(intereses);
+
             if (profile != null) {
-
-                Intent intent = new Intent(getActivity(), TabHostNew.class);
-                intent.putExtra("Foto", usuario.getFoto());
-                intent.putExtra("Nombre", profile.getFirstName());
-                startActivity(intent);
-
-
+                logueado=true;
             }
         }
 
@@ -157,9 +217,7 @@ public class FragmentoLog extends Fragment implements Subscriptor{
             List<Address> list = geocoder.getFromLocation(ubicacion.getLatitude(), ubicacion.getLongitude(), 1);
             if (!list.isEmpty()) {
                 Address direccion = list.get(0);
-                Direccion = direccion.getAddressLine(0);
                 Ciudad = direccion.getLocality();
-                Pais = direccion.getCountryName();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -188,8 +246,8 @@ public class FragmentoLog extends Fragment implements Subscriptor{
         super.onViewCreated(view, savedInstanceState);
         LoginButton loginButton = (LoginButton) view.findViewById(R.id.login_button);
         loginButton.setReadPermissions(Arrays.asList(
-                "public_profile", "email", "user_birthday", "user_friends"));
-        // If using in a fragment
+                "public_profile", "email", "user_birthday", "user_friends", "user_likes","user_actions.music"));
+        // If using in a fragment0
         loginButton.setFragment(this);
         // Other app specific specialization
 
@@ -197,8 +255,6 @@ public class FragmentoLog extends Fragment implements Subscriptor{
         loginButton.registerCallback(callbackManager, callBack);
     }
 
-    public void clic(View v) {
-    }
 
     class ObtenerFoto extends AsyncTask<String, Void, Usuario> {
         private Exception exception;
@@ -232,31 +288,83 @@ public class FragmentoLog extends Fragment implements Subscriptor{
 
 
     public void EnviarUsuario() {
+            JSONObject jsonObject= new JSONObject();
+            try {
+                jsonObject.put("nombre", usuario.getNombre());
+                jsonObject.put("apellido", usuario.getApellido());
+                jsonObject.put("edad", edad);
+                jsonObject.put("telefono", "0");
+                jsonObject.put("id", usuario.getId());
+
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             //Obtenemos los datos del Articles en foramto JSON
-            String strJson = usuario.toJSON();
-            Log.d("usuario", strJson);
+            String strJson = jsonObject.toString();
+            Log.d("viendo", strJson);
             //Se define la URL del servidor a la cual se enviarán lso datos
             //String baseUrl = "http://www.server.com/newarticle.php";
-            String baseUrl = "http://192.168.0.166/aplicacion/postUsuario.php";
+            String baseUrl = "postUsuario.php";
 
             //Se ejecuta la peticion Http POST empleando AsyncTAsk
-            new MyHttpPostRequest().execute(baseUrl, strJson);
+            new MyHttpPostRequest().execute(baseUrl, strJson,"Usuario");
+        EnviarDatos();
 
     }
 
+    public void EnviarDatos() {
 
-    //OYENTE DEL BOTON "ENVIAR"
-    public void processScreen(View v) {
-        //Obtenemos los datos insertados por el usuario en pantalla
+        //Obtenemos los datos del Articles en foramto JSON
+        JSONObject jsonObject= new JSONObject();
+        try {
+            jsonObject.put("ciudad", Ciudad);
+            jsonObject.put("gustos", Gustos);
+            //jsonObject.put("gustos", "asd");
+            jsonObject.put("idU", usuario.getId());
+            Log.d("viendo",jsonObject.toString());
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        String strJson = jsonObject.toString();
+        //Se define la URL del servidor a la cual se enviarán lso datos
+        //String baseUrl = "http://www.server.com/newarticle.php";
+        String baseUrl = "inicio.php";
+
+        //Se ejecuta la peticion Http POST empleando AsyncTAsk
+        MyHttpPostRequest request=new MyHttpPostRequest();
+        request.Subscribirse(this);
+        request.execute(baseUrl, strJson,"Recital");
+        envioDatos=true;
+
+    }
+
+    public void Notificar(String s){
+        intereses=s;
+        if(logueado) {
+            intent = new Intent(getActivity(), TabHostNew.class);
+            intent.putExtra("Foto", usuario.getFoto());
+            intent.putExtra("Nombre", usuario.getNombre());
+            intent.putExtra("Intereses", s);
+            intent.putExtra("Gustos",Gustos);
+            intent.putExtra("id", usuario.getId());
+            //alertDialog.dismiss();
+            startActivity(intent);
+        }
+    }
+
+    public void open(View v) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        builder.setTitle("");
+        builder.setIcon(R.drawable.guitar);
+        alertDialog = builder.create();
+        alertDialog.show();
 
 
-        //Instanciamos el objeto  con los datos insertados por el usuario
-
-
-        //Llamamos la método sendNewArticle definido en el MainActivity
-        //para Enviar los datos al servidor
-
-        //sendNewUsuario();
     }
 
 }

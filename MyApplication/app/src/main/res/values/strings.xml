@@ -19,5 +19,6 @@
     <string name="feedbacktype2">Pop</string>
     <string name="feedbacktype3">Cumbia</string>
     <string name="feedbacktype4">Opera</string>
+    <string name="excep">Ingrese los datos del auto</string>
 
 </resources>

@@ -73,9 +73,7 @@ public class FragmentoInicio extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        ListView lv = (ListView) view.findViewById(R.id.intereses);
-        lv.setAdapter(new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_list_item_1, sistemas));
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

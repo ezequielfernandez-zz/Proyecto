@@ -62,7 +62,7 @@ public class Usuario {
     }
 
     public void setEdad(String edad) {
-        this.edad = edad;
+        this.edad = edad;Log.d("viendo","seteo edad aca");
     }
 
     public String getTelefono() {
@@ -79,8 +79,10 @@ public class Usuario {
         try {
             jsonObject.put("nombre", getNombre());
             jsonObject.put("apellido", getApellido());
+//            Log.d("edad",getEdad());
             jsonObject.put("edad", getEdad());
-            jsonObject.put("telefono", getTelefono());
+            jsonObject.put("telefono", null);
+            jsonObject.put("id", getId());
 
             return jsonObject.toString();
         } catch (JSONException e) {

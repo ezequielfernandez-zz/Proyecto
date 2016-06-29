@@ -33,7 +33,7 @@
             android:layout_above="@+id/button" />
 
         <com.facebook.login.widget.LoginButton
-            android:id="@+id/salir"
+            android:id="@+id/salirF"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="clic"
@@ -45,13 +45,27 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Salir"
+            android:id="@+id/salir"
+            android:onClick="Salir"
+            android:textSize="10dp"
+            android:visibility="invisible"
+            android:layout_alignBottom="@+id/imageView"
+            android:layout_alignEnd="@+id/salirF"
+            android:layout_toEndOf="@+id/imageView"
+            android:layout_alignTop="@+id/salirF" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="Editar tu perfil"
             android:id="@+id/button"
             android:onClick="editar"
             android:textSize="10dp"
             android:layout_above="@+id/salir"
             android:layout_alignEnd="@+id/salir"
-            android:layout_toEndOf="@+id/imageView" />
+            android:layout_toEndOf="@+id/imageView"
+            android:visibility="visible" />
 
     </RelativeLayout>
 
@@ -95,11 +109,26 @@
             android:textSize="30dp" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Me gusta Divididos y Las pelotas"
-            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:text=""
+            android:id="@+id/descipcion"
             android:layout_below="@+id/editText4"
+            android:layout_alignParentStart="true" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Telefono"
+            android:textSize="30dp"
+            android:id="@+id/label"
+            android:layout_below="@+id/descipcion"
+            android:layout_alignParentStart="true" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:id="@+id/telefono"
+            android:layout_below="@+id/label"
             android:layout_alignParentStart="true" />
 
     </RelativeLayout>
