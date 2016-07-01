@@ -1,0 +1,53 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FragmentoInicio"
+    >
+
+    <!-- TODO: Update blank fragment layout -->
+
+
+    <RelativeLayout
+        android:id="@+id/inferior"
+        android:layout_width="match_parent"
+        android:layout_height="503dp"
+        android:layout_below="@+id/imageView"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="right|bottom"
+        >
+
+        <android.support.v4.widget.NestedScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/editText2"
+            android:id="@+id/view">
+
+        </android.support.v4.widget.NestedScrollView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText2"
+            android:text="Próximos recitales"
+            android:textSize="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="70dp" />
+
+
+
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:id="@+id/intereses"
+            android:choiceMode="multipleChoiceModal"
+            android:layout_alignParentStart="true"
+            android:layout_alignTop="@+id/view"
+            android:layout_alignParentBottom="true" />
+
+
+    </RelativeLayout>
+
+</RelativeLayout>
